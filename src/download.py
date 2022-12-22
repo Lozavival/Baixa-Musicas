@@ -5,7 +5,7 @@ from pytube import YouTube
 
 
 def remove_unsupported_characters(string: str) -> str:
-    unsupported = '\\/:*?"<>|~#%&+,.}{$!`=[]'
+    unsupported = '\\/:*?"<>|~#%&+,.}{$!`='
     return string.translate({ord(i): None for i in unsupported})
 
 

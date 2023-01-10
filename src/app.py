@@ -1,7 +1,8 @@
+import sys
 from typing import Any, Tuple
 
 import customtkinter as ctk
-from PIL import Image
+from PIL import Image, ImageTk
 from pytube.exceptions import RegexMatchError
 
 import download
@@ -13,6 +14,8 @@ FONT16 = ("Inter", 16)
 FONT18 = ("Inter", 18)
 FONT20 = ("Inter", 20)
 PADX = 10
+
+ASSETS_PATH = "assets\\" if sys.platform.startswith('win32') else "assets/"
 
 
 class MyImage(ctk.CTkLabel):
@@ -27,7 +30,7 @@ class App(ctk.CTk):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.title("Baixa-Músicas")
-        # self.geometry("x")
+        self.iconphoto(False, ImageTk.PhotoImage(Image.open(ASSETS_PATH + "icon.ico")))
         self.resizable(False, False)
         self.folder = ""
 
@@ -71,13 +74,13 @@ class App(ctk.CTk):
         self.download_button.grid(row=5, column=1, padx=PADX)
 
         self.download_status = ctk.CTkLabel(master=self, text="", font=FONT18)
-        self.download_status.grid(row=6, column=1, padx=PADX, pady=10)
+        self.download_status.grid(row=6, column=0, columnspan=3, padx=PADX, pady=10)
 
         # GUI decoration
-        img1 = MyImage(self, "assets/nota-musical-dupla.png", size=(75, 75))
+        img1 = MyImage(self, ASSETS_PATH + "nota-musical-dupla.png", size=(75, 75))
         img1.grid(row=4, column=0, rowspan=2)
 
-        img2 = MyImage(self, "assets/nota-musical.png", -15, (64, 64))
+        img2 = MyImage(self, ASSETS_PATH + "nota-musical.png", -15, (64, 64))
         img2.grid(row=4, column=2, rowspan=2)
 
     def select_folder(self) -> None:

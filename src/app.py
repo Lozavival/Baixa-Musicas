@@ -89,8 +89,6 @@ class App(ctk.CTk):
 
     def clean_inputs(self) -> None:
         self.link_entry.delete(0, ctk.END)
-        self.folder = ""
-        self.folder_label.configure(text="Pasta selecionada:")
         self.download_status.configure(text="")
 
     def download_music(self) -> None:

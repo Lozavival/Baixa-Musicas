@@ -107,8 +107,13 @@ class App(ctk.CTk):
         # Download and convert the video
         self.download_status.configure(text="Baixando...")
         try:
-            download.download(link, self.folder)
-            self.download_status.configure(text="Arquivo baixado com sucesso!")
+            filepath = download.download(link, self.folder)
+            
+            self.download_status.configure(text="Convertendo arquivo...")
+            if download.convert_to_map3(filepath):
+                self.download_status.configure(text="Conversão concluída\nArquivo baixado com sucesso!")
+            else:                
+                self.download_status.configure(text="Falha na conversão, tente novamente!")
         except RegexMatchError:
             self.download_status.configure(
                 text="Erro no download: Não foi possível encontrar o vídeo!")

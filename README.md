@@ -4,7 +4,7 @@ Baixa-Músicas é um aplicativo desktop escrito em Python voltado para o downloa
 
 ## Guia de Instalação
 
-Clone este repositório por meio do comando `git clone https://github.com/Lozavival/Baixa-Musicas.git` ou baixe o arquivo [.zip]().
+Clone este repositório por meio do comando `git clone https://github.com/Lozavival/Baixa-Musicas.git` ou baixe o arquivo [.zip](baixa-musicas.zip).
 
 Em seguida, dentro do diretório do projeto, instale as bibliotecas necessárias com o comando `pip install -r requirements.txt`, de preferência dentro de um ambiente virtual.
 
@@ -27,6 +27,10 @@ Após alguns instantes, o download será concluído e uma mensagem será exibida
 Caso ocorra algum problema no download, será exibida uma mensagem indicadora do erro:
 - Se a mensagem "Falha na conversão, tente novamente!" aparecer, significa que algo deu errado durante a conversão de mp4 para mp3, ou seja, o problema ocasionou de um erro no programa.
 - Qualquer outra mensagem que aparecer indicará uso incorreto por parte do usuário; nesse caso, corrija o problema e tente novamente.
+
+## Disclaimer
+
+Este programa foi desenvolvido com o objetivo de aprendizagem e treino das funcionalidades incluídas (download de vídeos do YouTube, conversão de mp4 para mp3 e desenvolvimento de interfaces gráficas). Não utilize esse software para adquirir conteúdos protegidos por copyright e/ou propriedades intelectuais de outrem. 
 
 ## Referência
 

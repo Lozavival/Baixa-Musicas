@@ -45,18 +45,27 @@ class App(ctk.CTk):
         self.link_entry.grid(row=1, column=0, columnspan=3,
                              padx=PADX, pady=(0, 20))
 
+        # Audio/video selection
+        self.only_audio = ctk.IntVar(self, value=1)
+        self.type_select = ctk.CTkFrame(self)
+        self.radio_btn_audio = ctk.CTkRadioButton(master=self.type_select, text="Baixar apenas áudio", value=1, variable=self.only_audio)
+        self.radio_btn_both = ctk.CTkRadioButton(master=self.type_select, text="Baixar áudio e vídeo", value=0, variable=self.only_audio)
+        self.radio_btn_audio.pack()
+        self.radio_btn_both.pack()
+        self.type_select.grid(row=2, column=0, padx=PADX, pady=10, sticky="w")
+
         # Folder selection
         self.folder_button = ctk.CTkButton(master=self,
                                            text="Escolher pasta",
                                            font=FONT20,
                                            command=self.select_folder)
-        self.folder_button.grid(row=2, column=0,
+        self.folder_button.grid(row=3, column=0,
                                 padx=PADX, pady=10, sticky="w")
 
         self.folder_label = ctk.CTkLabel(master=self,
                                          text="Pasta selecionada:",
                                          font=FONT18)
-        self.folder_label.grid(row=3, column=0, columnspan=3,
+        self.folder_label.grid(row=4, column=0, columnspan=3,
                                padx=PADX, pady=(0, 20), sticky="w")
 
         # Clean inputs button
@@ -64,24 +73,24 @@ class App(ctk.CTk):
                                           text="Limpar",
                                           font=FONT20,
                                           command=self.clean_inputs)
-        self.clear_button.grid(row=2, column=2, padx=PADX, pady=10, sticky="e")
+        self.clear_button.grid(row=3, column=2, padx=PADX, pady=10, sticky="e")
 
         # Start download and status
         self.download_button = ctk.CTkButton(master=self,
                                              text="Baixar",
                                              font=FONT20,
                                              command=self.download_music)
-        self.download_button.grid(row=5, column=1, padx=PADX)
+        self.download_button.grid(row=6, column=1, padx=PADX)
 
         self.download_status = ctk.CTkLabel(master=self, text="", font=FONT18)
-        self.download_status.grid(row=6, column=0, columnspan=3, padx=PADX, pady=10)
+        self.download_status.grid(row=7, column=0, columnspan=3, padx=PADX, pady=10)
 
         # GUI decoration
         img1 = MyImage(self, ASSETS_PATH + "nota-musical-dupla.png", size=(75, 75))
-        img1.grid(row=4, column=0, rowspan=2)
+        img1.grid(row=5, column=0, rowspan=2)
 
         img2 = MyImage(self, ASSETS_PATH + "nota-musical.png", -15, (64, 64))
-        img2.grid(row=4, column=2, rowspan=2)
+        img2.grid(row=5, column=2, rowspan=2)
 
     def select_folder(self) -> None:
         self.folder = ctk.filedialog.askdirectory()
@@ -104,15 +113,17 @@ class App(ctk.CTk):
 
         # Download and convert the video
         self.download_status.configure(text="Baixando...")
+        only_audio = self.only_audio.get()
         try:
             yt_download = download.YTDownload(link)
-            filepath = yt_download.download_stream(self.folder)
+            filepath = yt_download.download_stream(self.folder, only_audio)
             
-            self.download_status.configure(text="Convertendo arquivo...")
-            if yt_download.convert_to_mp3(filepath):
-                self.download_status.configure(text="Conversão concluída\nArquivo baixado com sucesso!")
-            else:                
-                self.download_status.configure(text="Falha na conversão, tente novamente!")
+            if only_audio:
+                self.download_status.configure(text="Convertendo arquivo...")
+                if yt_download.convert_to_mp3(filepath):
+                    self.download_status.configure(text="Conversão concluída\nArquivo baixado com sucesso!")
+                else:                
+                    self.download_status.configure(text="Falha na conversão, tente novamente!")
         except RegexMatchError:
             self.download_status.configure(
                 text="Erro no download: Não foi possível encontrar o vídeo!")

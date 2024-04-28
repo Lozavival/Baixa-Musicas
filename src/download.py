@@ -6,8 +6,8 @@ from pytube import YouTube
 
 
 class YTDownload(YouTube):
-    def download_stream(self, path: str) -> str:
-        return self.streams.filter(only_audio=True).first().download(path)
+    def download_stream(self, path: str, only_audio: bool) -> str:
+        return self.streams.filter(only_audio=only_audio).first().download(path)
 
     def convert_to_mp3(self, mp4_path: str) -> bool:
         # convert mp4 file to mp3 file

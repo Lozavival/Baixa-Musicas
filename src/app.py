@@ -42,6 +42,7 @@ class App(ctk.CTk):
                              padx=PADX, pady=10, sticky="w")
 
         self.link_entry = ctk.CTkEntry(self, width=750, font=FONT16)
+        self.link_entry.bind("<Control-a>", self.select_all)
         self.link_entry.grid(row=1, column=0, columnspan=3,
                              padx=PADX, pady=(0, 20))
 
@@ -91,6 +92,11 @@ class App(ctk.CTk):
 
         img2 = MyImage(self, ASSETS_PATH + "nota-musical.png", -15, (64, 64))
         img2.grid(row=5, column=2, rowspan=2)
+    
+    def select_all(self, event):
+        event.widget.select_range(0, 'end')
+        event.widget.icursor('end')
+        return 'break'
 
     def select_folder(self) -> None:
         self.folder = ctk.filedialog.askdirectory()

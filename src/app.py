@@ -43,6 +43,7 @@ class App(ctk.CTk):
 
         self.link_entry = ctk.CTkEntry(self, width=750, font=FONT16)
         self.link_entry.bind("<Control-a>", self.select_all)
+        self.link_entry.bind("<Return>", self.download_music)
         self.link_entry.grid(row=1, column=0, columnspan=3,
                              padx=PADX, pady=(0, 20))
 
@@ -106,7 +107,7 @@ class App(ctk.CTk):
         self.link_entry.delete(0, ctk.END)
         self.download_status.configure(text="")
 
-    def download_music(self) -> None:
+    def download_music(self, event=None) -> None:
         # Check if the user filled all information
         if not (link := self.link_entry.get()):
             self.download_status.configure(

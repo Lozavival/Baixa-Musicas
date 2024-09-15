@@ -26,6 +26,15 @@ class MyImage(ctk.CTkLabel):
         self.configure(image=ctk.CTkImage(dark_image=img, size=size))
 
 
+class MyLabel(ctk.CTkLabel):
+    def __init__(self, master: Any, text: str, font: Tuple[str, int] = FONT18, **kwargs):
+        super().__init__(master, text=text, font=font, **kwargs)
+    
+    def configure(self, **kwargs):
+        super().configure(**kwargs)
+        self.update()
+
+
 class App(ctk.CTk):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -64,8 +73,8 @@ class App(ctk.CTk):
         self.folder_button.grid(row=3, column=0,
                                 padx=PADX, pady=10, sticky="w")
 
-        self.folder_label = ctk.CTkLabel(master=self,
-                                         text="Pasta selecionada:",
+        self.folder_label = MyLabel(master=self,
+                                         text="<nenhuma pasta selecionada>",
                                          font=FONT18)
         self.folder_label.grid(row=4, column=0, columnspan=3,
                                padx=PADX, pady=(0, 20), sticky="w")
@@ -84,7 +93,7 @@ class App(ctk.CTk):
                                              command=self.download_music)
         self.download_button.grid(row=6, column=1, padx=PADX)
 
-        self.download_status = ctk.CTkLabel(master=self, text="", font=FONT18)
+        self.download_status = MyLabel(master=self, text="", font=FONT18)
         self.download_status.grid(row=7, column=0, columnspan=3, padx=PADX, pady=10)
 
         # GUI decoration

@@ -44,13 +44,16 @@ class App(ctk.CTk):
         self.folder = ""
 
         # Link input
+        self.link_listener = ctk.StringVar()
+        self.link_listener.trace_add("write", self.toggle_resolution_selection)
+
         self.link_label = ctk.CTkLabel(master=self,
                                        text="Insira o link da música no Youtube:",
                                        font=FONT20)
         self.link_label.grid(row=0, column=0, columnspan=3,
                              padx=PADX, pady=10, sticky="w")
 
-        self.link_entry = ctk.CTkEntry(self, width=750, font=FONT16)
+        self.link_entry = ctk.CTkEntry(self, width=750, font=FONT16, textvariable=self.link_listener)
         self.link_entry.bind("<Control-a>", self.select_all)
         self.link_entry.bind("<Return>", self.download_music)
         self.link_entry.grid(row=1, column=0, columnspan=3,
@@ -58,12 +61,32 @@ class App(ctk.CTk):
 
         # Audio/video selection
         self.only_audio = ctk.IntVar(self, value=1)
-        self.type_select = ctk.CTkFrame(self)
-        self.radio_btn_audio = ctk.CTkRadioButton(master=self.type_select, text="Baixar apenas áudio", value=1, variable=self.only_audio)
-        self.radio_btn_both = ctk.CTkRadioButton(master=self.type_select, text="Baixar áudio e vídeo", value=0, variable=self.only_audio)
-        self.radio_btn_audio.pack()
+        self.type_select = ctk.CTkFrame(self, fg_color="transparent")
+        self.radio_btn_audio = ctk.CTkRadioButton(
+            master=self.type_select,
+            text="Baixar apenas áudio",
+            font=FONT16,
+            value=1,
+            variable=self.only_audio,
+            command=self.toggle_resolution_selection)
+        self.radio_btn_both = ctk.CTkRadioButton(
+            master=self.type_select,
+            text="Baixar áudio e vídeo",
+            font=FONT16,
+            value=0,
+            variable=self.only_audio,
+            command=self.toggle_resolution_selection)
+        self.radio_btn_audio.pack(pady=(0,7.5))
         self.radio_btn_both.pack()
-        self.type_select.grid(row=2, column=0, padx=PADX, pady=10, sticky="w")
+        self.type_select.grid(row=2, column=0, padx=PADX, pady=(10, 20), sticky="w")
+
+        # Video resolution selection
+        self.resolution_select = ctk.CTkFrame(self, fg_color="transparent")
+        self.resolution_label = MyLabel(master=self.resolution_select,
+                                             text="Selecione a resolução do vídeo:",
+                                             font=FONT18)
+        self.resolution_box = ctk.CTkComboBox(master=self.resolution_select, values=[], state="readonly", font=FONT16)
+        self.resolution_label.pack(anchor="e")
 
         # Folder selection
         self.folder_button = ctk.CTkButton(master=self,
@@ -74,8 +97,8 @@ class App(ctk.CTk):
                                 padx=PADX, pady=10, sticky="w")
 
         self.folder_label = MyLabel(master=self,
-                                         text="<nenhuma pasta selecionada>",
-                                         font=FONT18)
+                                    text="<nenhuma pasta selecionada>",
+                                    font=FONT18)
         self.folder_label.grid(row=4, column=0, columnspan=3,
                                padx=PADX, pady=(0, 20), sticky="w")
 
@@ -102,6 +125,29 @@ class App(ctk.CTk):
 
         img2 = MyImage(self, ASSETS_PATH + "nota-musical.png", -15, (64, 64))
         img2.grid(row=5, column=2, rowspan=2)
+    
+    def toggle_resolution_selection(self, *args) -> None:
+        # Check if the user inserted a valid link
+        try:
+            yt = download.YTDownload(self.link_entry.get())
+        except RegexMatchError:
+            return
+
+        # Show resolution selection
+        if not self.only_audio.get():
+            self.resolution_select.grid(row=2, column=1, columnspan=2, padx=PADX, sticky="ne")
+            self.resolution_label.configure(text="Buscando resoluções...")
+
+            # TODO: solve delay
+            resolutions = yt.get_all_resolutions()
+            self.resolution_box.configure(values=resolutions)
+            self.resolution_box.set(resolutions[0])
+
+            self.resolution_label.configure(text="Selecione a resolução do vídeo:")
+            self.resolution_box.pack(anchor="e")
+        else:
+            self.resolution_box.pack_forget()
+            self.resolution_select.grid_forget()
     
     def select_all(self, event):
         event.widget.select_range(0, 'end')
@@ -130,6 +176,7 @@ class App(ctk.CTk):
         # Download and convert the video
         self.download_status.configure(text="Baixando...")
         only_audio = self.only_audio.get()
+        resolution = self.resolution_box.get()
         try:
             yt_download = download.YTDownload(link)
             
@@ -141,7 +188,7 @@ class App(ctk.CTk):
                 else:                
                     self.download_status.configure(text="Falha na conversão, tente novamente!")
             else:
-                yt_download.download_video(self.folder)
+                yt_download.download_video(self.folder, resolution)
                 self.download_status.configure(text="Download concluído\nArquivo baixado com sucesso!")
         except RegexMatchError:
             self.download_status.configure(

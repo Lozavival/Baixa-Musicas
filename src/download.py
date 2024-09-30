@@ -9,9 +9,12 @@ class YTDownload(YouTube):
     def download_audio(self, path: str) -> str:
         return self.streams.filter(mime_type="audio/mp4").order_by("abr").last().download(path)
     
-    def download_video(self, path: str) -> None:
-        # Download both highest video and audio streams separately
-        video_stream = self.streams.filter(mime_type="video/mp4").order_by("resolution").last()
+    def get_all_resolutions(self) -> list[str]:
+        return [stream.resolution for stream in self.streams.filter(mime_type="video/mp4").order_by("resolution").desc()]
+    
+    def download_video(self, path: str, res: str) -> None:
+        # Download video and audio streams separately
+        video_stream = self.streams.filter(mime_type="video/mp4", resolution=res).last()
         audio_stream = self.streams.filter(mime_type="audio/mp4").order_by("abr").last()
         videopath = video_stream.download(path, filename="video.mp4")
         audiopath = audio_stream.download(path, filename="audio.mp4")

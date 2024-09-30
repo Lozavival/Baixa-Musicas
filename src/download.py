@@ -3,11 +3,27 @@ import os
 import eyed3
 import moviepy.editor as mp
 from pytube import YouTube
-
+import ffmpeg
 
 class YTDownload(YouTube):
-    def download_stream(self, path: str, only_audio: bool) -> str:
-        return self.streams.filter(only_audio=only_audio).first().download(path)
+    def download_audio(self, path: str) -> str:
+        return self.streams.filter(mime_type="audio/mp4").order_by("abr").last().download(path)
+    
+    def download_video(self, path: str) -> None:
+        # Download both highest video and audio streams separately
+        video_stream = self.streams.filter(mime_type="video/mp4").order_by("resolution").last()
+        audio_stream = self.streams.filter(mime_type="audio/mp4").order_by("abr").last()
+        videopath = video_stream.download(path, filename="video.mp4")
+        audiopath = audio_stream.download(path, filename="audio.mp4")
+
+        # Join video and audio streams
+        video = ffmpeg.input(videopath)
+        audio = ffmpeg.input(audiopath)
+        ffmpeg.output(video, audio, os.path.join(path, self.title + ".mp4")).run()
+
+        # Delete temporary files
+        os.remove(videopath)
+        os.remove(audiopath)
 
     def convert_to_mp3(self, mp4_path: str) -> bool:
         # convert mp4 file to mp3 file

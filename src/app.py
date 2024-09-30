@@ -132,14 +132,17 @@ class App(ctk.CTk):
         only_audio = self.only_audio.get()
         try:
             yt_download = download.YTDownload(link)
-            filepath = yt_download.download_stream(self.folder, only_audio)
             
             if only_audio:
-                self.download_status.configure(text="Convertendo arquivo...")
+                filepath = yt_download.download_audio(self.folder)
+                self.download_status.configure(text="Download concluído\nConvertendo arquivo...")
                 if yt_download.convert_to_mp3(filepath):
                     self.download_status.configure(text="Conversão concluída\nArquivo baixado com sucesso!")
                 else:                
                     self.download_status.configure(text="Falha na conversão, tente novamente!")
+            else:
+                yt_download.download_video(self.folder)
+                self.download_status.configure(text="Download concluído\nArquivo baixado com sucesso!")
         except RegexMatchError:
             self.download_status.configure(
                 text="Erro no download: Não foi possível encontrar o vídeo!")

@@ -3,7 +3,7 @@ from typing import Any, Tuple
 
 import customtkinter as ctk
 from PIL import Image, ImageTk
-from pytube.exceptions import RegexMatchError
+from pytubefix.exceptions import RegexMatchError
 
 import download
 

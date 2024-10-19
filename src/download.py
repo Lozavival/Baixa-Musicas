@@ -2,7 +2,7 @@ import os
 
 import eyed3
 import moviepy.editor as mp
-from pytube import YouTube
+from pytubefix import YouTube
 import ffmpeg
 
 class YTDownload(YouTube):

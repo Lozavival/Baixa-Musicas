@@ -16,11 +16,36 @@ FONT18 = ("Inter", 18)
 FONT20 = ("Inter", 20)
 PADX = 10
 
-ASSETS_PATH = "assets\\" if sys.platform.startswith('win32') else "assets/"
+ASSETS_PATH = "assets\\" if sys.platform.startswith("win32") else "assets/"
 
 
 class MyImage(ctk.CTkLabel):
-    def __init__(self, master: Any, path: str, rotation: float = 0, size: Tuple[int, int] = (20, 20), **kwargs):
+    """
+    A custom label that displays an image.
+    """
+
+    def __init__(
+        self,
+        master: Any,
+        path: str,
+        rotation: float = 0,
+        size: Tuple[int, int] = (20, 20),
+        **kwargs
+    ):
+        """
+        Initialize the image label.
+
+        Parameters
+        ----------
+        master : Any
+            The parent widget.
+        path : str
+            The path to the image file.
+        rotation : float, optional
+            The rotation angle of the image in degrees. Defaults to 0.
+        size : Tuple[int, int], optional
+            The size of the image in pixels. Defaults to (20, 20).
+        """
         super().__init__(master, text="", **kwargs)
 
         img = Image.open(path).rotate(rotation)
@@ -28,16 +53,44 @@ class MyImage(ctk.CTkLabel):
 
 
 class MyLabel(ctk.CTkLabel):
-    def __init__(self, master: Any, text: str, font: Tuple[str, int] = FONT18, **kwargs):
+    """
+    A custom label that displays text.
+    """
+
+    def __init__(
+        self, master: Any, text: str, font: Tuple[str, int] = FONT18, **kwargs
+    ):
+        """
+        Initialize the label.
+
+        Parameters
+        ----------
+        master : Any
+            The parent widget.
+        text : str
+            The text to display in the label.
+        font : Tuple[str, int], optional
+            The font to use for the label. Defaults to FONT18.
+        """
         super().__init__(master, text=text, font=font, **kwargs)
-    
+
     def configure(self, **kwargs):
+        """
+        Override the configure method of the parent class to update the label.
+        """
         super().configure(**kwargs)
         self.update()
 
 
 class App(ctk.CTk):
+    """
+    The main application window.
+    """
+
     def __init__(self, **kwargs) -> None:
+        """
+        Initialize the application window.
+        """
         super().__init__(**kwargs)
         self.title("Baixa-Músicas")
         self.iconphoto(False, ImageTk.PhotoImage(Image.open(ASSETS_PATH + "icon.ico")))
@@ -51,19 +104,23 @@ class App(ctk.CTk):
         self.link_listener.trace_add("write", self.toggle_resolution_selection)
         self.link_listener.trace_add("write", self.validate_link)
 
-        self.link_label = ctk.CTkLabel(master=self,
-                                       text="Insira o link da música no Youtube:",
-                                       font=FONT20)
-        self.link_label.grid(row=0, column=0, columnspan=2,
-                             padx=PADX, pady=10, sticky="w")
+        self.link_label = ctk.CTkLabel(
+            master=self, text="Insira o link da música no Youtube:", font=FONT20
+        )
+        self.link_label.grid(
+            row=0, column=0, columnspan=2, padx=PADX, pady=10, sticky="w"
+        )
 
-        self.link_entry = ctk.CTkEntry(self, width=750, font=FONT16, textvariable=self.link_listener)
+        self.link_entry = ctk.CTkEntry(
+            self, width=750, font=FONT16, textvariable=self.link_listener
+        )
         self.link_entry.bind("<Control-a>", self.select_all)
         self.link_entry.bind("<Return>", self.download_music)
-        self.link_entry.grid(row=1, column=0, columnspan=3,
-                             padx=PADX, pady=(0, 20))
+        self.link_entry.grid(row=1, column=0, columnspan=3, padx=PADX, pady=(0, 20))
 
-        self.invalid_link = ctk.CTkLabel(master=self, text="Link inválido", font=FONT16, text_color="#FF0000")
+        self.invalid_link = ctk.CTkLabel(
+            master=self, text="Link inválido", font=FONT16, text_color="#FF0000"
+        )
 
         # Audio/video selection
         self.only_audio = ctk.IntVar(self, value=1)
@@ -74,31 +131,36 @@ class App(ctk.CTk):
             font=FONT16,
             value=1,
             variable=self.only_audio,
-            command=self.toggle_resolution_selection)
+            command=self.toggle_resolution_selection,
+        )
         self.radio_btn_both = ctk.CTkRadioButton(
             master=self.type_select,
             text="Baixar áudio e vídeo",
             font=FONT16,
             value=0,
             variable=self.only_audio,
-            command=self.toggle_resolution_selection)
-        self.radio_btn_audio.pack(pady=(0,7.5))
+            command=self.toggle_resolution_selection,
+        )
+        self.radio_btn_audio.pack(pady=(0, 7.5))
         self.radio_btn_both.pack()
         self.type_select.grid(row=2, column=0, padx=PADX, pady=(10, 20), sticky="w")
 
         # Video resolution selection
         self.resolution_select = ctk.CTkFrame(self, fg_color="transparent")
-        self.resolution_label = MyLabel(master=self.resolution_select,
-                                             text="Selecione a resolução do vídeo:",
-                                             font=FONT18)
-        self.resolution_box = ctk.CTkComboBox(master=self.resolution_select, values=[], state="readonly", font=FONT16)
+        self.resolution_label = MyLabel(
+            master=self.resolution_select,
+            text="Selecione a resolução do vídeo:",
+            font=FONT18,
+        )
+        self.resolution_box = ctk.CTkComboBox(
+            master=self.resolution_select, values=[], state="readonly", font=FONT16
+        )
         self.resolution_label.pack(anchor="e")
 
         # Start download and status
-        self.download_button = ctk.CTkButton(master=self,
-                                             text="Baixar",
-                                             font=FONT20,
-                                             command=self.download_music)
+        self.download_button = ctk.CTkButton(
+            master=self, text="Baixar", font=FONT20, command=self.download_music
+        )
         self.download_button.grid(row=4, column=1, padx=PADX)
 
         self.download_status = MyLabel(master=self, text="", font=FONT18)
@@ -110,8 +172,11 @@ class App(ctk.CTk):
 
         img2 = MyImage(self, ASSETS_PATH + "nota-musical.png", -15, (64, 64))
         img2.grid(row=3, column=2, rowspan=2, pady=(10, 0))
-    
+
     def validate_link(self, *args) -> bool:
+        """
+        Validate the provided link.
+        """
         link = self.link_entry.get()
         try:
             self.yt = download.YTDownload(link)
@@ -127,8 +192,13 @@ class App(ctk.CTk):
             return False
 
     def toggle_resolution_selection(self, *args) -> None:
+        """
+        Toggle the resolution selection based on the user's choice.
+        """
         if self.yt is not None and not self.only_audio.get():
-            self.resolution_select.grid(row=2, column=1, columnspan=2, padx=PADX, sticky="ne")
+            self.resolution_select.grid(
+                row=2, column=1, columnspan=2, padx=PADX, sticky="ne"
+            )
             self.resolution_label.configure(text="Buscando resoluções...")
 
             # TODO: solve delay
@@ -141,17 +211,22 @@ class App(ctk.CTk):
         else:
             self.resolution_box.pack_forget()
             self.resolution_select.grid_forget()
-    
+
     def select_all(self, event):
-        event.widget.select_range(0, 'end')
-        event.widget.icursor('end')
-        return 'break'
+        """
+        Select all the text in the entry.
+        """
+        event.widget.select_range(0, "end")
+        event.widget.icursor("end")
+        return "break"
 
     def download_music(self, event=None) -> None:
+        """
+        Start the download process.
+        """
         # Check if the user provided a valid link
         if not self.link_entry.get():
-            self.download_status.configure(
-                text="Erro: Nenhum link foi inserido")
+            self.download_status.configure(text="Erro: Nenhum link foi inserido")
             return
         if self.yt is None:
             self.download_status.configure(text="Erro: Link inválido")
@@ -165,7 +240,11 @@ class App(ctk.CTk):
         filename = ctk.filedialog.asksaveasfilename(
             confirmoverwrite=True,
             initialfile=sanitize_filename(self.yt.title),
-            filetypes=[("Arquivo de áudio", "*.mp3")] if only_audio else [("Arquivo de vídeo", "*.mp4")],
+            filetypes=(
+                [("Arquivo de áudio", "*.mp3")]
+                if only_audio
+                else [("Arquivo de vídeo", "*.mp4")]
+            ),
         )
         if not filename:
             self.download_status.configure(text="Download cancelado")

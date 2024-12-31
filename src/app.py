@@ -45,14 +45,17 @@ class App(ctk.CTk):
         self.resizable(False, False)
         self.grid_columnconfigure((0, 1, 2), weight=1, uniform="column")  # make columns equal width
 
+        self.yt = None
+
         # Link input
         self.link_listener = ctk.StringVar()
         self.link_listener.trace_add("write", self.toggle_resolution_selection)
+        self.link_listener.trace_add("write", self.validate_link)
 
         self.link_label = ctk.CTkLabel(master=self,
                                        text="Insira o link da música no Youtube:",
                                        font=FONT20)
-        self.link_label.grid(row=0, column=0, columnspan=3,
+        self.link_label.grid(row=0, column=0, columnspan=2,
                              padx=PADX, pady=10, sticky="w")
 
         self.link_entry = ctk.CTkEntry(self, width=750, font=FONT16, textvariable=self.link_listener)
@@ -60,6 +63,8 @@ class App(ctk.CTk):
         self.link_entry.bind("<Return>", self.download_music)
         self.link_entry.grid(row=1, column=0, columnspan=3,
                              padx=PADX, pady=(0, 20))
+
+        self.invalid_link = ctk.CTkLabel(master=self, text="Link inválido", font=FONT16, text_color="#FF0000")
 
         # Audio/video selection
         self.only_audio = ctk.IntVar(self, value=1)
@@ -107,20 +112,28 @@ class App(ctk.CTk):
         img2 = MyImage(self, ASSETS_PATH + "nota-musical.png", -15, (64, 64))
         img2.grid(row=3, column=2, rowspan=2, pady=(10, 0))
     
-    def toggle_resolution_selection(self, *args) -> None:
-        # Check if the user inserted a valid link
+    def validate_link(self, *args) -> bool:
+        link = self.link_entry.get()
         try:
-            yt = download.YTDownload(self.link_entry.get())
-        except RegexMatchError:
-            return
+            self.yt = download.YTDownload(link)
 
-        # Show resolution selection
-        if not self.only_audio.get():
+            self.invalid_link.grid_forget()
+            self.link_entry.configure(border_color="#00FF00")
+            return True
+        except RegexMatchError:
+            self.yt = None
+
+            self.invalid_link.grid(row=0, column=2, padx=PADX, sticky="e")
+            self.link_entry.configure(border_color="#FF0000")
+            return False
+
+    def toggle_resolution_selection(self, *args) -> None:
+        if self.yt is not None and not self.only_audio.get():
             self.resolution_select.grid(row=2, column=1, columnspan=2, padx=PADX, sticky="ne")
             self.resolution_label.configure(text="Buscando resoluções...")
 
             # TODO: solve delay
-            resolutions = yt.get_all_resolutions()
+            resolutions = self.yt.get_all_resolutions()
             self.resolution_box.configure(values=resolutions)
             self.resolution_box.set(resolutions[0])
 
@@ -136,27 +149,23 @@ class App(ctk.CTk):
         return 'break'
 
     def download_music(self, event=None) -> None:
-        # Check if the user filled all information
-        if not (link := self.link_entry.get()):
+        # Check if the user provided a valid link
+        if not self.link_entry.get():
             self.download_status.configure(
-                text="Nenhum link foi inserido, insira o link do vídeo!")
+                text="Erro: Nenhum link foi inserido")
+            return
+        if self.yt is None:
+            self.download_status.configure(text="Erro: Link inválido")
             return
 
         # Get user settings
         only_audio = self.only_audio.get()
         resolution = self.resolution_box.get()
 
-        # Check if the user inserted a valid link
-        try:
-            yt = download.YTDownload(link)
-        except RegexMatchError:
-            self.download_status.configure(text="Erro no download: Não foi possível encontrar o vídeo!")
-            return
-
         # Ask for filename confirmation
         filename = ctk.filedialog.asksaveasfilename(
             confirmoverwrite=True,
-            initialfile=sanitize_filename(yt.title),
+            initialfile=sanitize_filename(self.yt.title),
             filetypes=[("Arquivo de áudio", "*.mp3")] if only_audio else [("Arquivo de vídeo", "*.mp4")],
         )
         if not filename:
@@ -171,14 +180,14 @@ class App(ctk.CTk):
         # Download and convert the video
         self.download_status.configure(text="Baixando...")
         if only_audio:
-            filepath = yt.download_audio(filename, overwrite=True)
+            filepath = self.yt.download_audio(filename, overwrite=True)
             self.download_status.configure(text="Download concluído\nConvertendo arquivo...")
-            if yt.convert_to_mp3(filepath):
+            if self.yt.convert_to_mp3(filepath):
                 self.download_status.configure(text="Conversão concluída\nArquivo baixado com sucesso!")
             else:                
                 self.download_status.configure(text="Falha na conversão, tente novamente!")
         else:
-            yt.download_video(filename, resolution, overwrite=True)
+            self.yt.download_video(filename, resolution, overwrite=True)
             self.download_status.configure(text="Download concluído\nArquivo baixado com sucesso!")
 
 

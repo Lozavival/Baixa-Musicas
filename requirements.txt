@@ -6,7 +6,7 @@ darkdetect==0.8.0
 decorator==4.4.2
 deprecation==2.1.0
 eyed3==0.9.7
-ffmpeg==1.4
+ffmpeg-python==0.2.0
 filetype==1.2.0
 idna==3.10
 imageio==2.36.0

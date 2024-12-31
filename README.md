@@ -8,6 +8,8 @@ Clone este repositório por meio do comando `git clone https://github.com/Lozavi
 
 Em seguida, dentro do diretório do projeto, instale as bibliotecas necessárias com o comando `pip install -r requirements.txt`, de preferência dentro de um ambiente virtual.
 
+Além disso, são necessário dois pacotes externos para o funcionamento do programa: `python3-tk` e `ffmpeg`. Verifique se eles já estão instalados e, em caso negativo, instale-os.
+
 Para executar o aplicativo, basta rodar o arquivo [src/app.py](src/app.py).
 
 ## Uso

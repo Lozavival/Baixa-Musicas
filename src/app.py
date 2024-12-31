@@ -43,7 +43,7 @@ class App(ctk.CTk):
         self.title("Baixa-Músicas")
         self.iconphoto(False, ImageTk.PhotoImage(Image.open(ASSETS_PATH + "icon.ico")))
         self.resizable(False, False)
-        self.folder = ""
+        self.grid_columnconfigure((0, 1, 2), weight=1, uniform="column")  # make columns equal width
 
         # Link input
         self.link_listener = ctk.StringVar()
@@ -90,43 +90,22 @@ class App(ctk.CTk):
         self.resolution_box = ctk.CTkComboBox(master=self.resolution_select, values=[], state="readonly", font=FONT16)
         self.resolution_label.pack(anchor="e")
 
-        # Folder selection
-        self.folder_button = ctk.CTkButton(master=self,
-                                           text="Escolher pasta",
-                                           font=FONT20,
-                                           command=self.select_folder)
-        self.folder_button.grid(row=3, column=0,
-                                padx=PADX, pady=10, sticky="w")
-
-        self.folder_label = MyLabel(master=self,
-                                    text="<nenhuma pasta selecionada>",
-                                    font=FONT18)
-        self.folder_label.grid(row=4, column=0, columnspan=3,
-                               padx=PADX, pady=(0, 20), sticky="w")
-
-        # Clean inputs button
-        self.clear_button = ctk.CTkButton(master=self,
-                                          text="Limpar",
-                                          font=FONT20,
-                                          command=self.clean_inputs)
-        self.clear_button.grid(row=3, column=2, padx=PADX, pady=10, sticky="e")
-
         # Start download and status
         self.download_button = ctk.CTkButton(master=self,
                                              text="Baixar",
                                              font=FONT20,
                                              command=self.download_music)
-        self.download_button.grid(row=6, column=1, padx=PADX)
+        self.download_button.grid(row=4, column=1, padx=PADX)
 
         self.download_status = MyLabel(master=self, text="", font=FONT18)
-        self.download_status.grid(row=7, column=0, columnspan=3, padx=PADX, pady=10)
+        self.download_status.grid(row=5, column=0, columnspan=3, padx=PADX, pady=10)
 
         # GUI decoration
         img1 = MyImage(self, ASSETS_PATH + "nota-musical-dupla.png", size=(75, 75))
-        img1.grid(row=5, column=0, rowspan=2)
+        img1.grid(row=3, column=0, rowspan=2, pady=(10, 0))
 
         img2 = MyImage(self, ASSETS_PATH + "nota-musical.png", -15, (64, 64))
-        img2.grid(row=5, column=2, rowspan=2)
+        img2.grid(row=3, column=2, rowspan=2, pady=(10, 0))
     
     def toggle_resolution_selection(self, *args) -> None:
         # Check if the user inserted a valid link
@@ -156,23 +135,11 @@ class App(ctk.CTk):
         event.widget.icursor('end')
         return 'break'
 
-    def select_folder(self) -> None:
-        self.folder = ctk.filedialog.askdirectory()
-        self.folder_label.configure(text=f'Pasta selecionada: "{self.folder}"')
-
-    def clean_inputs(self) -> None:
-        self.link_entry.delete(0, ctk.END)
-        self.download_status.configure(text="")
-
     def download_music(self, event=None) -> None:
         # Check if the user filled all information
         if not (link := self.link_entry.get()):
             self.download_status.configure(
                 text="Nenhum link foi inserido, insira o link do vídeo!")
-            return
-        if not self.folder:
-            self.download_status.configure(
-                text="Nenhuma pasta foi selecionada, selecione a pasta de destino!")
             return
 
         # Get user settings
@@ -190,7 +157,6 @@ class App(ctk.CTk):
         filename = ctk.filedialog.asksaveasfilename(
             confirmoverwrite=True,
             initialfile=sanitize_filename(yt.title),
-            initialdir=self.folder,
             filetypes=[("Arquivo de áudio", "*.mp3")] if only_audio else [("Arquivo de vídeo", "*.mp4")],
         )
         if not filename:

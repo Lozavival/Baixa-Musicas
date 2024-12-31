@@ -2,7 +2,6 @@ import sys
 from typing import Any, Tuple
 
 import customtkinter as ctk
-from CTkMessagebox import CTkMessagebox
 from pathvalidate import sanitize_filename
 from PIL import Image, ImageTk
 from pytubefix.exceptions import RegexMatchError
@@ -169,12 +168,7 @@ class App(ctk.CTk):
             filetypes=[("Arquivo de áudio", "*.mp3")] if only_audio else [("Arquivo de vídeo", "*.mp4")],
         )
         if not filename:
-            CTkMessagebox(
-                title="Download cancelado",
-                message="Download cancelado!",
-                icon="info",
-                font=FONT16
-            )
+            self.download_status.configure(text="Download cancelado")
             return
 
         # Download and convert the video

@@ -71,23 +71,21 @@ class YTDownload(YouTube):
         -------
         None
         """
-        # TODO: clear temporary files even if download fails
-        path = os.path.dirname(filename)
-
         # Download video and audio streams separately
         video_stream = self.streams.filter(mime_type="video/mp4", resolution=res).last()
         audio_stream = self.streams.filter(mime_type="audio/mp4").order_by("abr").last()
-        videopath = video_stream.download(path, filename="video.mp4")
-        audiopath = audio_stream.download(path, filename="audio.mp4")
+        videopath = video_stream.download(filename="video.mp4")
+        audiopath = audio_stream.download(filename="audio.mp4")
 
-        # Join video and audio streams
-        video = ffmpeg.input(videopath)
-        audio = ffmpeg.input(audiopath)
-        ffmpeg.output(video, audio, filename).run(overwrite_output=overwrite)
-
-        # Delete temporary files
-        os.remove(videopath)
-        os.remove(audiopath)
+        try:
+            # Join video and audio streams
+            video = ffmpeg.input(videopath)
+            audio = ffmpeg.input(audiopath)
+            ffmpeg.output(video, audio, filename).run(overwrite_output=overwrite)
+        finally:
+            # Delete temporary files
+            os.remove(videopath)
+            os.remove(audiopath)
 
     def convert_to_mp3(self, mp4_path: str) -> bool:
         """

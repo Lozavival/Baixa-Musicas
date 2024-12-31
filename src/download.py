@@ -6,8 +6,10 @@ from pytubefix import YouTube
 import ffmpeg
 
 class YTDownload(YouTube):
-    def download_audio(self, path: str) -> str:
-        return self.streams.filter(mime_type="audio/mp4").order_by("abr").last().download(path)
+    def download_audio(self, filename: str, overwrite: bool = False) -> str:
+        path, name = os.path.split(filename)
+        name = name.replace(".mp3", ".mp4")
+        return self.streams.filter(mime_type="audio/mp4").order_by("abr").last().download(output_path=path, filename=name, skip_existing=not overwrite)
     
     def get_all_resolutions(self) -> list[str]:
         resolutions = []
@@ -16,7 +18,10 @@ class YTDownload(YouTube):
                 resolutions.append(stream.resolution)
         return resolutions
     
-    def download_video(self, path: str, res: str) -> None:
+    def download_video(self, filename: str, res: str, overwrite: bool = False) -> None:
+        # TODO: clear temporary files even if download fails
+        path = os.path.dirname(filename)
+
         # Download video and audio streams separately
         video_stream = self.streams.filter(mime_type="video/mp4", resolution=res).last()
         audio_stream = self.streams.filter(mime_type="audio/mp4").order_by("abr").last()
@@ -26,7 +31,7 @@ class YTDownload(YouTube):
         # Join video and audio streams
         video = ffmpeg.input(videopath)
         audio = ffmpeg.input(audiopath)
-        ffmpeg.output(video, audio, os.path.join(path, self.title + ".mp4")).run()
+        ffmpeg.output(video, audio, filename).run(overwrite_output=overwrite)
 
         # Delete temporary files
         os.remove(videopath)

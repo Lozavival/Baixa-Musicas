@@ -2,6 +2,7 @@ import sys
 from typing import Any, Tuple
 
 import customtkinter as ctk
+from CTkMessagebox import CTkMessagebox
 from PIL import Image, ImageTk
 from pytubefix.exceptions import RegexMatchError
 
@@ -173,26 +174,45 @@ class App(ctk.CTk):
                 text="Nenhuma pasta foi selecionada, selecione a pasta de destino!")
             return
 
-        # Download and convert the video
-        self.download_status.configure(text="Baixando...")
+        # Get user settings
         only_audio = self.only_audio.get()
         resolution = self.resolution_box.get()
+
+        # Check if the user inserted a valid link
         try:
-            yt_download = download.YTDownload(link)
-            
-            if only_audio:
-                filepath = yt_download.download_audio(self.folder)
-                self.download_status.configure(text="Download concluído\nConvertendo arquivo...")
-                if yt_download.convert_to_mp3(filepath):
-                    self.download_status.configure(text="Conversão concluída\nArquivo baixado com sucesso!")
-                else:                
-                    self.download_status.configure(text="Falha na conversão, tente novamente!")
-            else:
-                yt_download.download_video(self.folder, resolution)
-                self.download_status.configure(text="Download concluído\nArquivo baixado com sucesso!")
+            yt = download.YTDownload(link)
         except RegexMatchError:
-            self.download_status.configure(
-                text="Erro no download: Não foi possível encontrar o vídeo!")
+            self.download_status.configure(text="Erro no download: Não foi possível encontrar o vídeo!")
+            return
+
+        # Ask for filename confirmation
+        filename = ctk.filedialog.asksaveasfilename(
+            confirmoverwrite=True,
+            initialfile=yt.title,
+            initialdir=self.folder,
+            filetypes=[("Arquivo de áudio", "*.mp3")] if only_audio else [("Arquivo de vídeo", "*.mp4")],
+        )
+        if not filename:
+            CTkMessagebox(
+                title="Download cancelado",
+                message="Download cancelado!",
+                icon="info",
+                font=FONT16
+            )
+            return
+
+        # Download and convert the video
+        self.download_status.configure(text="Baixando...")
+        if only_audio:
+            filepath = yt.download_audio(filename, overwrite=True)
+            self.download_status.configure(text="Download concluído\nConvertendo arquivo...")
+            if yt.convert_to_mp3(filepath):
+                self.download_status.configure(text="Conversão concluída\nArquivo baixado com sucesso!")
+            else:                
+                self.download_status.configure(text="Falha na conversão, tente novamente!")
+        else:
+            yt.download_video(filename, resolution, overwrite=True)
+            self.download_status.configure(text="Download concluído\nArquivo baixado com sucesso!")
 
 
 def main():

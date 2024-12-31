@@ -10,7 +10,11 @@ class YTDownload(YouTube):
         return self.streams.filter(mime_type="audio/mp4").order_by("abr").last().download(path)
     
     def get_all_resolutions(self) -> list[str]:
-        return [stream.resolution for stream in self.streams.filter(mime_type="video/mp4").order_by("resolution").desc()]
+        resolutions = []
+        for stream in self.streams.filter(mime_type="video/mp4").order_by("resolution").desc():
+            if stream.resolution not in resolutions:
+                resolutions.append(stream.resolution)
+        return resolutions
     
     def download_video(self, path: str, res: str) -> None:
         # Download video and audio streams separately

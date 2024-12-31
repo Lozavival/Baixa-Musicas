@@ -15,6 +15,7 @@ imageio-ffmpeg==0.5.1
 moviepy==1.0.3
 numpy==2.1.2
 packaging==24.1
+pathvalidate==3.2.1
 pillow==11.0.0
 proglog==0.1.10
 pytubefix==8.1.1

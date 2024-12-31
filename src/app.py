@@ -3,6 +3,7 @@ from typing import Any, Tuple
 
 import customtkinter as ctk
 from CTkMessagebox import CTkMessagebox
+from pathvalidate import sanitize_filename
 from PIL import Image, ImageTk
 from pytubefix.exceptions import RegexMatchError
 
@@ -188,7 +189,7 @@ class App(ctk.CTk):
         # Ask for filename confirmation
         filename = ctk.filedialog.asksaveasfilename(
             confirmoverwrite=True,
-            initialfile=yt.title,
+            initialfile=sanitize_filename(yt.title),
             initialdir=self.folder,
             filetypes=[("Arquivo de áudio", "*.mp3")] if only_audio else [("Arquivo de vídeo", "*.mp4")],
         )

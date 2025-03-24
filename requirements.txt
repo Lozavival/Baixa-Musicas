@@ -9,6 +9,7 @@ deprecation==2.1.0
 eyed3==0.9.7
 ffmpeg-python==0.2.0
 filetype==1.2.0
+future==1.0.0
 idna==3.10
 imageio==2.36.0
 imageio-ffmpeg==0.5.1
@@ -18,8 +19,10 @@ packaging==24.1
 pathvalidate==3.2.1
 pillow==11.0.0
 proglog==0.1.10
-pytubefix==8.1.1
+pytube==15.0.0
+pytubefix==8.12.2
 requests==2.32.3
+setuptools==75.6.0
 toml==0.10.2
 tqdm==4.66.5
 urllib3==2.2.3

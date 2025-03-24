@@ -12,7 +12,7 @@ class YTDownload(YouTube):
     downloading audio and video from YouTube.
     """
     def __init__(self, *args, **kwargs):
-        super().__init__(client="ANDROID", *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def download_audio(self, filename: str, overwrite: bool = False) -> str:
         """

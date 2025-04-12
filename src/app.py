@@ -239,7 +239,7 @@ class App(ctk.CTk):
         # Ask for filename confirmation
         filename = ctk.filedialog.asksaveasfilename(
             confirmoverwrite=True,
-            initialfile=sanitize_filename(self.yt.title),
+            initialfile=sanitize_filename(self.yt.title).replace('.', ''),
             filetypes=(
                 [("Arquivo de áudio", "*.mp3")]
                 if only_audio
